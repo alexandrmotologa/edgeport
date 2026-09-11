@@ -38,7 +38,10 @@ class TunnelClient:
         store: TransactionStore | None = None,
         forwarder: LocalForwarder | None = None,
     ) -> None:
-        self.relay_url = relay_url
+        if not relay_url.endswith("/ws/tunnel"):
+            self.relay_url = relay_url.rstrip("/") + "/ws/tunnel"
+        else:
+            self.relay_url = relay_url
         self.subdomain = subdomain
         self.target_url = target_url
         self.token = token

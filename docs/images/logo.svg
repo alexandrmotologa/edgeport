@@ -1,0 +1,187 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1024 1024" width="1024" height="1024">
+  <defs>
+    <clipPath id="squircle-clip">
+      <rect x="24" y="24" width="976" height="976" rx="220" />
+    </clipPath>
+
+    <!-- Electric Cyan Gradient for Optics & Core -->
+    <linearGradient id="cyan-glow" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#00f5ff"/>
+      <stop offset="100%" stop-color="#0284c7"/>
+    </linearGradient>
+
+    <!-- Warm Amber / Gold Gradient for Beak Strike Accent -->
+    <linearGradient id="amber-accent" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#fbbf24"/>
+      <stop offset="100%" stop-color="#ea580c"/>
+    </linearGradient>
+
+    <!-- Facet Shades for Volumetric Origami Lighting -->
+    <linearGradient id="facet-light" x1="0%" y1="0%" x2="0%" y2="100%">
+      <stop offset="0%" stop-color="#475569"/>
+      <stop offset="100%" stop-color="#334155"/>
+    </linearGradient>
+
+    <linearGradient id="facet-mid" x1="0%" y1="0%" x2="0%" y2="100%">
+      <stop offset="0%" stop-color="#334155"/>
+      <stop offset="100%" stop-color="#1e293b"/>
+    </linearGradient>
+
+    <linearGradient id="facet-dark" x1="0%" y1="0%" x2="0%" y2="100%">
+      <stop offset="0%" stop-color="#1e293b"/>
+      <stop offset="100%" stop-color="#0f172a"/>
+    </linearGradient>
+
+    <linearGradient id="facet-obsidian" x1="0%" y1="0%" x2="0%" y2="100%">
+      <stop offset="0%" stop-color="#0f172a"/>
+      <stop offset="100%" stop-color="#020617"/>
+    </linearGradient>
+
+    <!-- Subtle Drop Shadow -->
+    <filter id="portal-shadow" x="-15%" y="-15%" width="130%" height="130%">
+      <feDropShadow dx="0" dy="16" stdDeviation="20" flood-color="#0f172a" flood-opacity="0.14" />
+    </filter>
+
+    <filter id="core-glow" x="-20%" y="-20%" width="140%" height="140%">
+      <feDropShadow dx="0" dy="0" stdDeviation="12" flood-color="#00f5ff" flood-opacity="0.6" />
+    </filter>
+  </defs>
+
+  <!-- Luxury White Squircle Container -->
+  <rect x="24" y="24" width="976" height="976" rx="220" fill="#ffffff" stroke="#e2e8f0" stroke-width="6" />
+
+  <g clip-path="url(#squircle-clip)">
+    <g transform="translate(512, 512)" filter="url(#portal-shadow)">
+
+      <!-- Hexagonal Architectural Gateway -->
+      <polygon points="
+        0,-390
+        338,-195
+        338,195
+        0,390
+        -338,195
+        -338,-195
+      " fill="#f8fafc" stroke="#0f172a" stroke-width="36" stroke-linejoin="round" />
+
+      <!-- Inner Precision Telemetry Guide -->
+      <polygon points="
+        0,-355
+        307,-177
+        307,177
+        0,355
+        -307,177
+        -307,-177
+      " fill="none" stroke="#00f5ff" stroke-width="4" opacity="0.45" stroke-dasharray="16, 12" />
+
+      <!-- ============================================================ -->
+      <!-- MASCOT: THE HARBOR OSPREY (PORT SENTINEL)                      -->
+      <!-- Symmetrical Origami/Low-Poly Geometry Centered at (0,0)       -->
+      <!-- ============================================================ -->
+
+      <!-- OUTER WINGS (PORTAL ARCH FRAME) -->
+      <!-- Left Upper Wing Primaries -->
+      <polygon points="-175,-95 -285,-175 -295,-25 -190,5" fill="url(#facet-mid)" stroke="#0f172a" stroke-width="3" stroke-linejoin="round" />
+      <polygon points="-175,-95 -285,-175 -215,-190 -130,-155" fill="url(#facet-light)" stroke="#0f172a" stroke-width="3" stroke-linejoin="round" />
+      <!-- Right Upper Wing Primaries -->
+      <polygon points="175,-95 285,-175 295,-25 190,5" fill="url(#facet-dark)" stroke="#0f172a" stroke-width="3" stroke-linejoin="round" />
+      <polygon points="175,-95 285,-175 215,-190 130,-155" fill="url(#facet-mid)" stroke="#0f172a" stroke-width="3" stroke-linejoin="round" />
+
+      <!-- Left Mid Wing Feathers -->
+      <polygon points="-295,-25 -275,95 -175,75 -190,5" fill="url(#facet-dark)" stroke="#0f172a" stroke-width="3" stroke-linejoin="round" />
+      <!-- Right Mid Wing Feathers -->
+      <polygon points="295,-25 275,95 175,75 190,5" fill="url(#facet-obsidian)" stroke="#0f172a" stroke-width="3" stroke-linejoin="round" />
+
+      <!-- Left Lower Wing Feathers -->
+      <polygon points="-275,95 -220,195 -135,145 -175,75" fill="url(#facet-obsidian)" stroke="#0f172a" stroke-width="3" stroke-linejoin="round" />
+      <!-- Right Lower Wing Feathers -->
+      <polygon points="275,95 220,195 135,145 175,75" fill="url(#facet-dark)" stroke="#0f172a" stroke-width="3" stroke-linejoin="round" />
+
+      <!-- CROWN / CREST (UPPER HEAD) -->
+      <!-- Crest Feathers -->
+      <polygon points="0,-295 -75,-335 -85,-240 -45,-225" fill="url(#facet-mid)" stroke="#0f172a" stroke-width="3" stroke-linejoin="round" />
+      <polygon points="0,-295 75,-335 85,-240 45,-225" fill="url(#facet-dark)" stroke="#0f172a" stroke-width="3" stroke-linejoin="round" />
+      <polygon points="0,-295 -45,-225 0,-185" fill="url(#facet-light)" stroke="#0f172a" stroke-width="3" stroke-linejoin="round" />
+      <polygon points="0,-295 45,-225 0,-185" fill="url(#facet-mid)" stroke="#0f172a" stroke-width="3" stroke-linejoin="round" />
+
+      <!-- TEMPLE & BROW RIDGES -->
+      <polygon points="-45,-225 -130,-155 -65,-140 0,-165" fill="url(#facet-mid)" stroke="#0f172a" stroke-width="3" stroke-linejoin="round" />
+      <polygon points="45,-225 130,-155 65,-140 0,-165" fill="url(#facet-dark)" stroke="#0f172a" stroke-width="3" stroke-linejoin="round" />
+
+      <!-- CHEEKS & FACE FACETS -->
+      <polygon points="-130,-155 -175,-95 -110,-55 -45,-125" fill="url(#facet-dark)" stroke="#0f172a" stroke-width="3" stroke-linejoin="round" />
+      <polygon points="130,-155 175,-95 110,-55 45,-125" fill="url(#facet-obsidian)" stroke="#0f172a" stroke-width="3" stroke-linejoin="round" />
+
+      <!-- EYES (ELECTRIC CYAN OPTICS) -->
+      <polygon points="-88,-160 -45,-150 -68,-138" fill="url(#cyan-glow)" filter="url(#core-glow)" stroke="#00f5ff" stroke-width="1.5" />
+      <polygon points="88,-160 45,-150 68,-138" fill="url(#cyan-glow)" filter="url(#core-glow)" stroke="#00f5ff" stroke-width="1.5" />
+
+      <!-- UPPER SNOUT & CULMEN -->
+      <polygon points="0,-165 -45,-125 0,-55" fill="url(#facet-light)" stroke="#0f172a" stroke-width="3" stroke-linejoin="round" />
+      <polygon points="0,-165 45,-125 0,-55" fill="url(#facet-mid)" stroke="#0f172a" stroke-width="3" stroke-linejoin="round" />
+
+      <!-- BEAK (PRECISION AMBER/GOLD STRIKE HOOK) -->
+      <polygon points="0,-125 -32,-75 0,-25" fill="url(#amber-accent)" stroke="#0f172a" stroke-width="2.5" stroke-linejoin="round" />
+      <polygon points="0,-125 32,-75 0,-25" fill="#f59e0b" stroke="#0f172a" stroke-width="2.5" stroke-linejoin="round" />
+      <polygon points="0,-25 -14,-5 0,15 14,-5" fill="#ea580c" stroke="#0f172a" stroke-width="2" stroke-linejoin="round" />
+
+      <!-- CHEST BREASTPLATE (ARMORED CHASSIS) -->
+      <polygon points="0,-25 -110,-55 -105,75 0,65" fill="url(#facet-mid)" stroke="#0f172a" stroke-width="3" stroke-linejoin="round" />
+      <polygon points="0,-25 110,-55 105,75 0,65" fill="url(#facet-dark)" stroke="#0f172a" stroke-width="3" stroke-linejoin="round" />
+      <polygon points="-110,-55 -175,75 -105,75" fill="url(#facet-dark)" stroke="#0f172a" stroke-width="3" stroke-linejoin="round" />
+      <polygon points="110,-55 175,75 105,75" fill="url(#facet-obsidian)" stroke="#0f172a" stroke-width="3" stroke-linejoin="round" />
+
+      <!-- CENTRAL INGRESS PORTAL (TUNNEL CORE JEWEL) -->
+      <!-- Outer Hex Collar -->
+      <polygon points="
+        0,68
+        54,99
+        54,161
+        0,192
+        -54,161
+        -54,99
+      " fill="#0f172a" stroke="#00f5ff" stroke-width="3" stroke-linejoin="round" />
+
+      <!-- Glowing Cyan Hexagonal Tunnel Port -->
+      <polygon points="
+        0,78
+        44,103
+        44,157
+        0,182
+        -44,157
+        -44,103
+      " fill="url(#cyan-glow)" filter="url(#core-glow)" />
+
+      <!-- Inner Telemetry Core -->
+      <polygon points="
+        0,92
+        26,107
+        26,153
+        0,168
+        -26,153
+        -26,107
+      " fill="#0b0f19" stroke="#ffffff" stroke-width="2" opacity="0.9" />
+
+      <circle cx="0" cy="130" r="8" fill="#00f5ff" filter="url(#core-glow)" />
+
+      <!-- LOWER CHASSIS & TAIL FEATHERS -->
+      <polygon points="0,192 -54,161 -80,245 0,275" fill="url(#facet-mid)" stroke="#0f172a" stroke-width="3" stroke-linejoin="round" />
+      <polygon points="0,192 54,161 80,245 0,275" fill="url(#facet-dark)" stroke="#0f172a" stroke-width="3" stroke-linejoin="round" />
+      <polygon points="-80,245 -135,145 -105,75" fill="url(#facet-obsidian)" stroke="#0f172a" stroke-width="3" stroke-linejoin="round" />
+      <polygon points="80,245 135,145 105,75" fill="url(#facet-obsidian)" stroke="#0f172a" stroke-width="3" stroke-linejoin="round" />
+
+      <!-- Tail Rudders -->
+      <polygon points="0,275 -45,340 0,330" fill="url(#facet-light)" stroke="#0f172a" stroke-width="3" stroke-linejoin="round" />
+      <polygon points="0,275 45,340 0,330" fill="url(#facet-mid)" stroke="#0f172a" stroke-width="3" stroke-linejoin="round" />
+      <polygon points="0,330 -25,370 0,380 25,370" fill="url(#cyan-glow)" stroke="#0f172a" stroke-width="2" stroke-linejoin="round" />
+
+      <!-- Subtly Interlocking Edge Conduit Nodes (Top & Bottom Gateway Pins) -->
+      <circle cx="0" cy="-390" r="10" fill="#00f5ff" />
+      <circle cx="338" cy="-195" r="8" fill="#0f172a" stroke="#00f5ff" stroke-width="3" />
+      <circle cx="338" cy="195" r="8" fill="#0f172a" stroke="#00f5ff" stroke-width="3" />
+      <circle cx="0" cy="390" r="10" fill="#00f5ff" />
+      <circle cx="-338" cy="195" r="8" fill="#0f172a" stroke="#00f5ff" stroke-width="3" />
+      <circle cx="-338" cy="-195" r="8" fill="#0f172a" stroke="#00f5ff" stroke-width="3" />
+
+    </g>
+  </g>
+</svg>

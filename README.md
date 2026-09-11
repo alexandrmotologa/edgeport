@@ -1,22 +1,79 @@
-# EdgePort
+<p align="center">
+  <img src="docs/images/logo.png?raw=true" alt="EdgePort Logo" width="130" style="border-radius: 28px;" />
+</p>
+
+<h1 align="center">EdgePort</h1>
+
+<p align="center">
+  <b>Self-hosted reverse tunneling and webhook replay engine</b><br>
+  Expose localhost to the public internet with real-time traffic inspection, HMAC re-signing, and zero configuration.
+</p>
+
+<p align="center">
+  <a href="https://github.com/alexandrmotologa/edgeport/actions"><img src="https://github.com/alexandrmotologa/edgeport/actions/workflows/ci.yml/badge.svg" alt="CI"></a>
+  <a href="https://pypi.org/project/edgeport/"><img src="https://img.shields.io/badge/python-3.12%2B-blue.svg" alt="Python 3.12+"></a>
+  <a href="LICENSE"><img src="https://img.shields.io/badge/license-MIT-green.svg" alt="License: MIT"></a>
+  <a href="https://github.com/astral-sh/ruff"><img src="https://img.shields.io/endpoint?url=https://raw.githubusercontent.com/astral-sh/ruff/main/assets/badge/v2.json" alt="Ruff"></a>
+</p>
+
+---
 
 EdgePort is a self-hosted reverse tunneling and webhook replay tool written in Python. It exposes your local HTTP and WebSocket services to the internet through an encrypted connection to a public relay server. Every incoming request is captured locally, displayed in a terminal user interface or an embedded web inspector, and can be replayed against your local service with a single keypress.
 
 ## Features
 
-- Single persistent WebSocket tunnel multiplexing concurrent HTTP streams and WebSocket connections (Vite HMR, chat).
-- Subdomain routing by Host header or query parameter on the public relay.
-- Interactive terminal inspector (TUI) powered by Textual with replay, cURL copy, and HAR export.
-- Embedded web dashboard at http://localhost:4040 with live Server-Sent Events, Edit & Replay modal, and mobile QR code view.
-- Automatic HMAC webhook resigning for Stripe, GitHub, and Shopify when modifying payloads during replay.
-- Built-in mock webhook generator (`edgeport mock`) for testing Stripe, GitHub, and Shopify webhooks.
-- Traffic export to standard HAR 1.2 and Postman Collection v2.1 formats.
-- Chaos testing engine with artificial latency injection and failure rates.
-- Relay security controls: Token Bucket rate limiter and CIDR/IP allowlists.
-- Relay administrative web console at `/_edgeport/admin`.
-- Cross-platform desktop notifications on incoming webhooks or 5xx errors.
-- Standalone mock sink mode to capture webhooks before building a backend.
-- Optional relay access tokens and HTTP basic auth protection.
+- **Bidirectional WebSocket Tunneling**: Multiplex concurrent HTTP streams and WebSocket connections (Vite HMR, live chat) over a single persistent tunnel.
+- **Subdomain Routing**: Clean hostname-based routing (`subdomain.yourdomain.com`) with header and query parameter fallbacks.
+- **Interactive Terminal Inspector (TUI)**: Fast keyboard-driven interface powered by Textual with instant replay, cURL copy, and HAR export.
+- **Embedded Web Inspector**: Dark-mode dashboard at `http://localhost:4040` with live Server-Sent Events, Edit & Replay modal, and mobile QR codes.
+- **HMAC Webhook Re-signing**: Recomputes authentic signatures for Stripe, GitHub, and Shopify when modifying request bodies before replay.
+- **Mock Webhook Generator**: Dispatch realistic pre-configured webhooks (`edgeport mock`) directly to your local endpoints.
+- **HAR 1.2 & Postman Export**: One-click export of captured traffic to industry-standard formats.
+- **Chaos Testing Engine**: Inject configurable artificial latency (`--delay-ms`) and failure rates (`--fail-rate`).
+- **Relay Security Controls**: Token-bucket rate limiting, CIDR IP allowlists, client tokens, and HTTP basic auth.
+- **Relay Administration Console**: Web dashboard at `/_edgeport/admin` to monitor active tunnels and disconnect clients.
+- **Cross-Platform Notifications**: Non-blocking desktop alerts on incoming requests and 5xx errors.
+- **Standalone Mock Sink**: Capture and inspect webhooks before building any application logic.
+
+## The Mascot: The Harbor Osprey
+
+<p align="center">
+  <img src="docs/images/logo.png?raw=true" alt="The Harbor Osprey Mascot" width="180" style="border-radius: 36px; margin: 12px 0;" />
+</p>
+
+EdgePort uses the **Harbor Osprey** ("The Edge Guardian"). In nature, the osprey commands coastal edges and harbors, vigilantly surveying the boundary between the wild open sea and the protected harbor. With razor-sharp vision and aerodynamic dives, it pierces through the surface barrier to retrieve payloads with zero hesitation. 
+
+In EdgePort, the Osprey embodies the reverse tunnel gateway: standing guard at the public network edge, intercepting incoming webhook streams, and tunneling them securely into your protected localhost port.
+
+---
+
+## Web Inspector
+
+EdgePort runs an embedded local web dashboard at `http://localhost:4040` by default. It allows inspecting headers, viewing formatted JSON payloads, editing bodies before replay, and downloading traffic archives.
+
+<p align="center">
+  <img src="docs/images/web-inspector.png?raw=true" alt="EdgePort Web Inspector" width="920" style="border-radius: 8px; box-shadow: 0 8px 30px rgba(0,0,0,0.4);" />
+</p>
+
+### Mobile Testing with QR Codes
+
+Click **📱 QR Code** in the inspector header to display a scannable QR code for your public tunnel URL. This enables instant mobile browser testing and camera webhook triggering without manually typing subdomains.
+
+<p align="center">
+  <img src="docs/images/qr-modal.png?raw=true" alt="EdgePort Mobile QR Code Modal" width="760" style="border-radius: 8px; box-shadow: 0 8px 30px rgba(0,0,0,0.4);" />
+</p>
+
+---
+
+## Relay Administration Console
+
+When self-hosting the EdgePort Relay Gateway, navigate to `http://yourdomain.com:8000/_edgeport/admin` to view connected tunnels, client IP addresses, uptime, and disconnect unauthorized connections.
+
+<p align="center">
+  <img src="docs/images/relay-admin.png?raw=true" alt="EdgePort Relay Administration Dashboard" width="860" style="border-radius: 8px; box-shadow: 0 8px 30px rgba(0,0,0,0.4);" />
+</p>
+
+---
 
 ## Installation
 
@@ -134,24 +191,6 @@ To run without the terminal TUI in headless mode:
 
 ```bash
 edgeport expose 8080 --no-tui
-```
-
-## Web Inspector
-
-EdgePort runs an embedded local web dashboard at `http://localhost:4040` by default. It features:
-
-- Live request stream via Server-Sent Events.
-- Request and response body inspection with JSON syntax formatting.
-- Header tables with quick copying.
-- **Edit & Replay**: modify headers or body payload, re-sign HMAC with your secret, and re-run against localhost.
-- **Mobile QR Code**: view the tunnel QR code modal to test camera webviews on physical phones.
-- **HAR & Postman Export**: download your captured traffic with one click.
-
-To disable the web inspector or change the port:
-
-```bash
-edgeport expose 8080 --web-port 4041
-edgeport expose 8080 --no-web
 ```
 
 ## Security
