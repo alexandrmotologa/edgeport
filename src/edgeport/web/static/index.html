@@ -1,0 +1,139 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>EdgePort — Live Webhook & Traffic Inspector</title>
+  <link rel="stylesheet" href="/static/style.css">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600&family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+</head>
+<body>
+  <div class="app-layout">
+    <!-- Top Navigation / Status Header -->
+    <header class="top-nav">
+      <div class="nav-brand">
+        <div class="logo-mark">EP</div>
+        <div class="brand-info">
+          <h1>EdgePort</h1>
+          <span class="version-badge">v0.1.0</span>
+        </div>
+      </div>
+
+      <div class="tunnel-meta">
+        <div class="meta-item">
+          <span class="meta-label">Status</span>
+          <div class="status-indicator">
+            <span class="status-dot live" id="status-dot"></span>
+            <span class="meta-value" id="status-text">Connecting...</span>
+          </div>
+        </div>
+        <div class="meta-item">
+          <span class="meta-label">Public URL</span>
+          <a href="#" target="_blank" class="meta-link" id="meta-public-url">-</a>
+        </div>
+        <div class="meta-item">
+          <span class="meta-label">Forwarding To</span>
+          <span class="meta-value code-font" id="meta-target-url">http://127.0.0.1:8080</span>
+        </div>
+      </div>
+
+      <div class="nav-actions">
+        <button class="btn btn-outline btn-sm" id="btn-clear-traffic">Clear Traffic</button>
+      </div>
+    </header>
+
+    <!-- Main Content Workspace -->
+    <main class="workspace">
+      <!-- Left: Request Stream Panel -->
+      <section class="stream-panel">
+        <div class="panel-header">
+          <div class="header-title">
+            <h2>Requests</h2>
+            <span class="badge count-badge" id="request-count">0</span>
+          </div>
+          <div class="search-box">
+            <input type="text" id="filter-input" placeholder="Filter by path or status...">
+          </div>
+        </div>
+
+        <div class="request-list" id="request-list">
+          <div class="empty-state" id="empty-state">
+            <div class="empty-icon">⇄</div>
+            <p>No requests intercepted yet</p>
+            <span>Send external traffic to your public tunnel URL to view it live</span>
+          </div>
+        </div>
+      </section>
+
+      <!-- Right: Transaction Detail Panel -->
+      <section class="detail-panel" id="detail-panel">
+        <div class="detail-placeholder" id="detail-placeholder">
+          <p>Select a request from the list to inspect payload and headers</p>
+        </div>
+
+        <div class="detail-content hidden" id="detail-content">
+          <div class="detail-toolbar">
+            <div class="transaction-summary">
+              <span class="method-pill" id="detail-method">POST</span>
+              <span class="path-display" id="detail-path">/api/webhooks</span>
+              <span class="status-pill" id="detail-status">200</span>
+              <span class="latency-pill" id="detail-duration">18ms</span>
+              <span class="provider-pill hidden" id="detail-provider">Stripe</span>
+            </div>
+            <div class="toolbar-actions">
+              <button class="btn btn-secondary btn-sm" id="btn-copy-curl">
+                Copy cURL
+              </button>
+              <button class="btn btn-primary btn-sm" id="btn-replay">
+                <span class="btn-icon">↻</span> Replay Request
+              </button>
+            </div>
+          </div>
+
+          <!-- Tabs -->
+          <div class="tab-bar">
+            <button class="tab-btn active" data-tab="req-body">Request Body</button>
+            <button class="tab-btn" data-tab="req-headers">Request Headers</button>
+            <button class="tab-btn" data-tab="resp-body">Response Body</button>
+            <button class="tab-btn" data-tab="resp-headers">Response Headers</button>
+          </div>
+
+          <!-- Tab Contents -->
+          <div class="tab-panes">
+            <!-- Request Body Tab -->
+            <div class="tab-pane active" id="tab-req-body">
+              <pre class="code-view" id="view-req-body"></pre>
+            </div>
+
+            <!-- Request Headers Tab -->
+            <div class="tab-pane" id="tab-req-headers">
+              <table class="headers-table" id="view-req-headers">
+                <thead><tr><th>Header</th><th>Value</th></tr></thead>
+                <tbody></tbody>
+              </table>
+            </div>
+
+            <!-- Response Body Tab -->
+            <div class="tab-pane" id="tab-resp-body">
+              <pre class="code-view" id="view-resp-body"></pre>
+            </div>
+
+            <!-- Response Headers Tab -->
+            <div class="tab-pane" id="tab-resp-headers">
+              <table class="headers-table" id="view-resp-headers">
+                <thead><tr><th>Header</th><th>Value</th></tr></thead>
+                <tbody></tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+      </section>
+    </main>
+  </div>
+
+  <div class="toast-container" id="toast-container"></div>
+  <script src="/static/app.js"></script>
+</body>
+</html>
