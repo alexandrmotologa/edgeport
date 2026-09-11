@@ -63,8 +63,12 @@ class EdgePortTUI(App):
     ) -> None:
         super().__init__()
         self.client = client
-        self.store = store or client.store
-        self.replay_engine = replay_engine or ReplayEngine(client.forwarder, self.store)
+        self.store = store if store is not None else client.store
+        self.replay_engine = (
+            replay_engine
+            if replay_engine is not None
+            else ReplayEngine(client.forwarder, self.store)
+        )
         self._selected_txn: CapturedTransaction | None = None
 
     def compose(self) -> ComposeResult:

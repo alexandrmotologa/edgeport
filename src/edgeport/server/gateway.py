@@ -171,7 +171,7 @@ class RelayGateway:
                     f = decode_frame(msg["bytes"])
                     await multiplexer.handle_inbound_frame(f)
 
-        except WebSocketDisconnect:
+        except (WebSocketDisconnect, asyncio.CancelledError):
             pass
         except Exception as exc:
             logger.warning("Tunnel connection error: %s", exc)

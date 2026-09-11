@@ -42,8 +42,12 @@ class TunnelClient:
         self.target_url = target_url
         self.token = token
         self.basic_auth = basic_auth
-        self.store = store or TransactionStore()
-        self.forwarder = forwarder or LocalForwarder(target_base_url=target_url)
+        self.store = store if store is not None else TransactionStore()
+        self.forwarder = (
+            forwarder
+            if forwarder is not None
+            else LocalForwarder(target_base_url=target_url)
+        )
 
         self.public_url: str | None = None
         self.is_connected = False
