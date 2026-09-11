@@ -11,9 +11,11 @@ from starlette.responses import FileResponse, JSONResponse, Response, StreamingR
 from starlette.routing import Route
 from starlette.staticfiles import StaticFiles
 
+from edgeport.client.exporter import export_to_har, export_to_postman
 from edgeport.client.replay import ReplayEngine
 from edgeport.client.storage import CapturedTransaction
 from edgeport.client.tunnel_client import TunnelClient
+from edgeport.utils.qrcode_gen import generate_svg_qr
 
 STATIC_DIR = Path(__file__).parent / "static"
 
@@ -85,8 +87,30 @@ def create_web_inspector_app(client: TunnelClient, replay_engine: ReplayEngine) 
 
     async def handle_replay(request: Request) -> Response:
         txn_id = request.path_params["id"]
+        override_body = None
+        override_headers = None
+        secret = None
+
+        if request.method == "POST":
+            try:
+                body_bytes = await request.body()
+                if body_bytes:
+                    data = json.loads(body_bytes)
+                    if "override_body" in data and data["override_body"] is not None:
+                        val = data["override_body"]
+                        override_body = val.encode("utf-8") if isinstance(val, str) else val
+                    override_headers = data.get("override_headers")
+                    secret = data.get("webhook_secret")
+            except Exception:
+                pass
+
         try:
-            result = await replay_engine.replay(txn_id)
+            result = await replay_engine.replay(
+                txn_id,
+                override_body=override_body,
+                override_headers=override_headers,
+                webhook_secret=secret,
+            )
             return JSONResponse(
                 {
                     "original_id": result.original_id,
@@ -102,6 +126,31 @@ def create_web_inspector_app(client: TunnelClient, replay_engine: ReplayEngine) 
             return JSONResponse({"error": "Transaction not found"}, status_code=404)
         except Exception as exc:
             return JSONResponse({"error": str(exc)}, status_code=500)
+
+    async def handle_export_har(request: Request) -> Response:
+        base_url = client.public_url or client.target_url
+        data = export_to_har(store.all(), base_url=base_url)
+        return JSONResponse(
+            data,
+            headers={"Content-Disposition": 'attachment; filename="edgeport-traffic.har"'},
+        )
+
+    async def handle_export_postman(request: Request) -> Response:
+        base_url = client.public_url or client.target_url
+        data = export_to_postman(store.all(), base_url=base_url)
+        return JSONResponse(
+            data,
+            headers={
+                "Content-Disposition": (
+                    'attachment; filename="edgeport-collection.postman_collection.json"'
+                )
+            },
+        )
+
+    async def handle_qrcode(request: Request) -> Response:
+        target = client.public_url or client.target_url
+        svg_content = generate_svg_qr(target)
+        return Response(content=svg_content, media_type="image/svg+xml")
 
     async def handle_info(request: Request) -> Response:
         return JSONResponse(
@@ -139,6 +188,9 @@ def create_web_inspector_app(client: TunnelClient, replay_engine: ReplayEngine) 
             Route("/", handle_index, methods=["GET"]),
             Route("/events", handle_events, methods=["GET"]),
             Route("/api/info", handle_info, methods=["GET"]),
+            Route("/api/qrcode", handle_qrcode, methods=["GET"]),
+            Route("/api/export/har", handle_export_har, methods=["GET"]),
+            Route("/api/export/postman", handle_export_postman, methods=["GET"]),
             Route("/api/transactions", handle_get_transactions, methods=["GET"]),
             Route("/api/transactions/{id}", handle_get_transaction_detail, methods=["GET"]),
             Route("/api/transactions/{id}/replay", handle_replay, methods=["POST"]),

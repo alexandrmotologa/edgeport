@@ -51,6 +51,7 @@ class EdgePortTUI(App):
         Binding("q", "quit", "Quit", show=True),
         Binding("r", "replay", "Replay", show=True),
         Binding("c", "copy_curl", "Copy cURL", show=True),
+        Binding("e", "export", "Export HAR", show=True),
         Binding("j", "cursor_down", "Down", show=False),
         Binding("k", "cursor_up", "Up", show=False),
     ]
@@ -154,3 +155,14 @@ class EdgePortTUI(App):
             self.notify("Copied cURL command to clipboard", title="Clipboard")
         except Exception:
             self.notify(f"cURL: {curl_cmd[:60]}...", title="cURL Command")
+
+    def action_export(self) -> None:
+        from edgeport.client.exporter import save_har_file
+        txns = self.store.all()
+        if not txns:
+            self.notify("No transactions to export", severity="warning")
+            return
+        base_url = self.client.public_url or self.client.target_url
+        path = save_har_file(txns, "edgeport-traffic.har", base_url=base_url)
+        self.notify(f"Exported {len(txns)} requests to {path.name}", title="Export Complete")
+

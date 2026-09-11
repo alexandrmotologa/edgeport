@@ -21,6 +21,11 @@ class FrameType(StrEnum):
     STREAM_END = "STREAM_END"
     STREAM_RESET = "STREAM_RESET"
 
+    # Bidirectional WebSocket tunneling frames
+    WS_OPEN = "WS_OPEN"
+    WS_FRAME = "WS_FRAME"
+    WS_CLOSE = "WS_CLOSE"
+
 
 class Frame(BaseModel):
     """Base wire frame exchanged between client and relay."""

@@ -1,5 +1,7 @@
 """Forwards HTTP requests to the target local service."""
 
+import asyncio
+import random
 import time
 
 import httpx
@@ -24,9 +26,15 @@ class LocalForwarder:
         self,
         target_base_url: str = "http://127.0.0.1:8080",
         timeout: float = 30.0,
+        chaos_delay_ms: float = 0.0,
+        chaos_fail_rate: float = 0.0,
+        chaos_mock_status: int | None = None,
     ) -> None:
         self.target_base_url = target_base_url.rstrip("/")
         self.timeout = timeout
+        self.chaos_delay_ms = chaos_delay_ms
+        self.chaos_fail_rate = chaos_fail_rate
+        self.chaos_mock_status = chaos_mock_status
         self._client = httpx.AsyncClient(timeout=timeout, follow_redirects=False)
 
     async def forward(
@@ -52,6 +60,22 @@ class LocalForwarder:
             full_url = f"{full_url}?{query_string}"
 
         start_time = time.perf_counter()
+
+        # 1. Chaos latency simulation
+        if self.chaos_delay_ms > 0:
+            await asyncio.sleep(self.chaos_delay_ms / 1000.0)
+
+        # 2. Chaos mock status injection
+        if self.chaos_mock_status is not None:
+            body = (
+                f"EdgePort Chaos Mock: Simulated status {self.chaos_mock_status}"
+            ).encode("utf-8")
+            return self.chaos_mock_status, {"content-type": "text/plain"}, body, self.chaos_delay_ms
+
+        # 3. Chaos random failure injection
+        if self.chaos_fail_rate > 0.0 and random.random() < self.chaos_fail_rate:
+            body = b"EdgePort Chaos Failure: Injected 500 Internal Server Error"
+            return 500, {"content-type": "text/plain"}, body, self.chaos_delay_ms
         try:
             resp = await self._client.request(
                 method=method,

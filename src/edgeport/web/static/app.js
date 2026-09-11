@@ -22,7 +22,21 @@ document.addEventListener('DOMContentLoaded', () => {
     viewRespHeaders: document.getElementById('view-resp-headers').querySelector('tbody'),
     btnCopyCurl: document.getElementById('btn-copy-curl'),
     btnReplay: document.getElementById('btn-replay'),
+    btnEditReplay: document.getElementById('btn-edit-replay'),
     btnClearTraffic: document.getElementById('btn-clear-traffic'),
+    btnShowQr: document.getElementById('btn-show-qr'),
+    btnExportHar: document.getElementById('btn-export-har'),
+    btnExportPostman: document.getElementById('btn-export-postman'),
+    modalQr: document.getElementById('modal-qr'),
+    btnCloseQr: document.getElementById('btn-close-qr'),
+    qrModalUrl: document.getElementById('qr-modal-url'),
+    qrImage: document.getElementById('qr-image'),
+    modalEditReplay: document.getElementById('modal-edit-replay'),
+    btnCloseEdit: document.getElementById('btn-close-edit'),
+    btnCancelEdit: document.getElementById('btn-cancel-edit'),
+    btnSubmitEditReplay: document.getElementById('btn-submit-edit-replay'),
+    editReqBody: document.getElementById('edit-req-body'),
+    editWebhookSecret: document.getElementById('edit-webhook-secret'),
     tabButtons: document.querySelectorAll('.tab-btn'),
     tabPanes: document.querySelectorAll('.tab-pane'),
     toastContainer: document.getElementById('toast-container'),
@@ -30,6 +44,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
   let transactions = [];
   let currentTransactionId = null;
+  let currentTransactionDetail = null;
   let currentCurl = '';
 
   // 1. Fetch Tunnel Info
@@ -42,6 +57,7 @@ document.addEventListener('DOMContentLoaded', () => {
         elements.publicUrl.textContent = data.public_url;
         elements.statusText.textContent = 'Online';
         elements.statusDot.classList.add('live');
+        if (elements.qrModalUrl) elements.qrModalUrl.value = data.public_url;
       } else {
         elements.statusText.textContent = 'Disconnected';
         elements.statusDot.classList.remove('live');
@@ -121,6 +137,7 @@ document.addEventListener('DOMContentLoaded', () => {
       const t = await res.json();
       if (t.error) return;
 
+      currentTransactionDetail = t;
       currentCurl = t.curl_command || '';
 
       elements.detailPlaceholder.classList.add('hidden');
@@ -194,7 +211,76 @@ document.addEventListener('DOMContentLoaded', () => {
     }
   };
 
-  // 6. Copy cURL Action
+  // 6. Edit & Replay Modal
+  elements.btnEditReplay.onclick = () => {
+    if (!currentTransactionDetail) return;
+    elements.editReqBody.value = currentTransactionDetail.request_body || '';
+    elements.editWebhookSecret.value = '';
+    elements.modalEditReplay.classList.remove('hidden');
+  };
+
+  elements.btnCloseEdit.onclick = () => elements.modalEditReplay.classList.add('hidden');
+  elements.btnCancelEdit.onclick = () => elements.modalEditReplay.classList.add('hidden');
+
+  elements.btnSubmitEditReplay.onclick = async () => {
+    if (!currentTransactionId) return;
+
+    elements.btnSubmitEditReplay.disabled = true;
+    elements.btnSubmitEditReplay.textContent = 'Executing...';
+
+    const payload = {
+      override_body: elements.editReqBody.value,
+      webhook_secret: elements.editWebhookSecret.value.trim() || undefined,
+    };
+
+    try {
+      const res = await fetch(`/api/transactions/${currentTransactionId}/replay`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(payload),
+      });
+      const result = await res.json();
+      if (result.error) {
+        showToast(`Edit & Replay failed: ${result.error}`);
+      } else {
+        showToast(`Replayed modified payload! Status: ${result.new_status}`);
+        elements.modalEditReplay.classList.add('hidden');
+        await fetchTransactions();
+        if (result.replayed_id) {
+          selectTransaction(result.replayed_id);
+        }
+      }
+    } catch (e) {
+      showToast(`Replay error: ${e.message}`);
+    } finally {
+      elements.btnSubmitEditReplay.disabled = false;
+      elements.btnSubmitEditReplay.textContent = 'Execute Replay';
+    }
+  };
+
+  // 7. QR Code Modal
+  elements.btnShowQr.onclick = () => {
+    elements.qrImage.src = `/api/qrcode?t=${Date.now()}`;
+    elements.qrModalUrl.value = elements.publicUrl.href || '';
+    elements.modalQr.classList.remove('hidden');
+  };
+
+  elements.btnCloseQr.onclick = () => {
+    elements.modalQr.classList.add('hidden');
+  };
+
+  // 8. Export HAR and Postman
+  elements.btnExportHar.onclick = () => {
+    window.location.href = '/api/export/har';
+    showToast('Exporting HAR 1.2 traffic archive...');
+  };
+
+  elements.btnExportPostman.onclick = () => {
+    window.location.href = '/api/export/postman';
+    showToast('Exporting Postman v2.1 collection...');
+  };
+
+  // 9. Copy cURL Action
   elements.btnCopyCurl.onclick = () => {
     if (!currentCurl) return;
     navigator.clipboard.writeText(currentCurl).then(() => {
@@ -204,10 +290,11 @@ document.addEventListener('DOMContentLoaded', () => {
     });
   };
 
-  // 7. Clear Traffic
+  // 10. Clear Traffic
   elements.btnClearTraffic.onclick = () => {
     transactions = [];
     currentTransactionId = null;
+    currentTransactionDetail = null;
     currentCurl = '';
     elements.detailContent.classList.add('hidden');
     elements.detailPlaceholder.classList.remove('hidden');
@@ -215,7 +302,7 @@ document.addEventListener('DOMContentLoaded', () => {
     showToast('Cleared traffic display');
   };
 
-  // 8. Tabs Switcher
+  // 11. Tabs Switcher
   elements.tabButtons.forEach(btn => {
     btn.onclick = () => {
       elements.tabButtons.forEach(b => b.classList.remove('active'));
@@ -228,10 +315,10 @@ document.addEventListener('DOMContentLoaded', () => {
     };
   });
 
-  // 9. Filter Input
+  // 12. Filter Input
   elements.filterInput.oninput = () => renderList();
 
-  // 10. Server-Sent Events (SSE) Stream
+  // 13. Server-Sent Events (SSE) Stream
   function connectSSE() {
     const eventSource = new EventSource('/events');
 

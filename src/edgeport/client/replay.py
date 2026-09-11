@@ -1,11 +1,43 @@
-"""Webhook request replay engine and diff generator."""
+"""Webhook request replay engine, signature regenerator, and diff generator."""
 
+import base64
 import difflib
+import hashlib
+import hmac
 import time
 from dataclasses import dataclass
 
 from .forwarder import LocalForwarder
 from .storage import CapturedTransaction, TransactionStore
+
+
+def resign_webhook_payload(
+    provider: str,
+    payload_bytes: bytes,
+    secret: str,
+    headers: dict[str, str],
+) -> dict[str, str]:
+    """Generates a valid HMAC signature with current timestamp for webhooks."""
+    updated = dict(headers)
+    now = int(time.time())
+
+    if provider.lower() == "stripe":
+        # Stripe: t=timestamp,v1=hex_hmac(secret, "{timestamp}.{payload}")
+        signed_data = f"{now}.".encode("utf-8") + payload_bytes
+        sig = hmac.new(secret.encode("utf-8"), signed_data, hashlib.sha256).hexdigest()
+        updated["stripe-signature"] = f"t={now},v1={sig}"
+
+    elif provider.lower() == "github":
+        # GitHub: sha256=hex_hmac(secret, payload)
+        sig = hmac.new(secret.encode("utf-8"), payload_bytes, hashlib.sha256).hexdigest()
+        updated["x-hub-signature-256"] = f"sha256={sig}"
+
+    elif provider.lower() == "shopify":
+        # Shopify: base64_hmac(secret, payload)
+        raw_sig = hmac.new(secret.encode("utf-8"), payload_bytes, hashlib.sha256).digest()
+        updated["x-shopify-hmac-sha256"] = base64.b64encode(raw_sig).decode("ascii")
+
+    return updated
 
 
 @dataclass
@@ -37,30 +69,47 @@ class ReplayEngine:
         self,
         transaction_id: str,
         custom_headers: dict[str, str] | None = None,
+        override_body: bytes | None = None,
+        override_method: str | None = None,
+        override_path: str | None = None,
+        webhook_secret: str | None = None,
     ) -> ReplayResult:
         """Re-dispatches a previously captured request to the local target."""
         original = self.store.get(transaction_id)
         if not original:
             raise KeyError(f"Transaction with ID '{transaction_id}' not found in store")
 
+        method = override_method or original.method
+        path = override_path or original.path
+        body = override_body if override_body is not None else original.request_body
+
         headers = dict(original.request_headers)
         if custom_headers:
             headers.update(custom_headers)
 
+        # Re-sign webhook if provider and secret are present
+        if webhook_secret and original.provider_hint:
+            headers = resign_webhook_payload(
+                provider=original.provider_hint,
+                payload_bytes=body,
+                secret=webhook_secret,
+                headers=headers,
+            )
+
         status, resp_headers, resp_body, duration_ms = await self.forwarder.forward(
-            method=original.method,
-            path=original.path,
+            method=method,
+            path=path,
             query_string=original.query_string,
             headers=headers,
-            body=original.request_body,
+            body=body,
         )
 
         replayed_txn = CapturedTransaction(
-            method=original.method,
-            path=original.path,
+            method=method,
+            path=path,
             query_string=original.query_string,
             request_headers=headers,
-            request_body=original.request_body,
+            request_body=body,
             response_status=status,
             response_headers=resp_headers,
             response_body=resp_body,

@@ -153,11 +153,61 @@ Terminates a stream prematurely due to an error or timeout.
 }
 ```
 
+### 3. WebSocket Proxying Frames (`stream_id` > 0)
+
+EdgePort supports transparent, bidirectional WebSocket proxying (e.g. for Vite HMR or chat apps).
+
+#### `WS_OPEN` (Server -> Client)
+Instructs the client to establish a local WebSocket connection to the destination service.
+
+```json
+{
+  "type": "WS_OPEN",
+  "stream_id": 2001,
+  "payload": {
+    "path": "/ws",
+    "headers": {
+      "host": "myapp.example.com",
+      "sec-websocket-version": "13"
+    },
+    "subprotocols": []
+  }
+}
+```
+
+#### `WS_FRAME` (Bidirectional)
+Transfers an individual WebSocket message frame (text or base64 binary).
+
+```json
+{
+  "type": "WS_FRAME",
+  "stream_id": 2001,
+  "payload": {
+    "is_binary": false,
+    "data": "{\"type\":\"ping\"}"
+  }
+}
+```
+
+#### `WS_CLOSE` (Bidirectional)
+Gracefully closes the WebSocket connection with standard RFC 6455 status code and reason.
+
+```json
+{
+  "type": "WS_CLOSE",
+  "stream_id": 2001,
+  "payload": {
+    "code": 1000,
+    "reason": "Normal Closure"
+  }
+}
+```
+
 ## Stream Lifecycle
 
 Each stream passes through the following states:
 
 1. **IDLE**: The `stream_id` is unused.
-2. **OPEN**: The server emits `STREAM_OPEN`. Both sides can transmit `STREAM_DATA`.
+2. **OPEN**: The server emits `STREAM_OPEN` (or `WS_OPEN`). Both sides can transmit data.
 3. **HALF_CLOSED_LOCAL**: One side emitted `STREAM_END` and will send no further data chunks.
-4. **CLOSED**: Both sides completed data transmission, or either side emitted `STREAM_RESET`. The `stream_id` is retired and released from memory.
+4. **CLOSED**: Both sides completed data transmission, or either side emitted `STREAM_RESET` or `WS_CLOSE`. The `stream_id` is retired and released from memory.

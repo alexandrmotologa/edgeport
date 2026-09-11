@@ -40,6 +40,9 @@
       </div>
 
       <div class="nav-actions">
+        <button class="btn btn-outline btn-sm" id="btn-show-qr" title="Show Mobile QR Code">📱 QR Code</button>
+        <button class="btn btn-outline btn-sm" id="btn-export-har" title="Export captured traffic as HAR 1.2">Export HAR</button>
+        <button class="btn btn-outline btn-sm" id="btn-export-postman" title="Export as Postman v2.1 Collection">Export Postman</button>
         <button class="btn btn-outline btn-sm" id="btn-clear-traffic">Clear Traffic</button>
       </div>
     </header>
@@ -86,6 +89,9 @@
               <button class="btn btn-secondary btn-sm" id="btn-copy-curl">
                 Copy cURL
               </button>
+              <button class="btn btn-secondary btn-sm" id="btn-edit-replay" title="Modify request payload or headers before replaying">
+                ✏️ Edit & Replay
+              </button>
               <button class="btn btn-primary btn-sm" id="btn-replay">
                 <span class="btn-icon">↻</span> Replay Request
               </button>
@@ -131,6 +137,47 @@
         </div>
       </section>
     </main>
+  </div>
+
+  <!-- QR Code Modal -->
+  <div class="modal-overlay hidden" id="modal-qr">
+    <div class="modal-card">
+      <div class="modal-header">
+        <h3>Tunnel QR Code</h3>
+        <button class="modal-close" id="btn-close-qr">&times;</button>
+      </div>
+      <div class="modal-body text-center">
+        <div class="qr-container" id="qr-image-container">
+          <img id="qr-image" src="/api/qrcode" alt="Public Tunnel QR Code">
+        </div>
+        <p class="qr-desc">Scan with your mobile camera to test mobile webhooks or web views instantly.</p>
+        <input type="text" readonly class="modal-input" id="qr-modal-url" value="">
+      </div>
+    </div>
+  </div>
+
+  <!-- Edit & Replay Modal -->
+  <div class="modal-overlay hidden" id="modal-edit-replay">
+    <div class="modal-card modal-lg">
+      <div class="modal-header">
+        <h3>Edit & Replay Request</h3>
+        <button class="modal-close" id="btn-close-edit">&times;</button>
+      </div>
+      <div class="modal-body">
+        <div class="form-group">
+          <label>Request Body (JSON / Raw Payload):</label>
+          <textarea id="edit-req-body" class="code-editor" rows="9"></textarea>
+        </div>
+        <div class="form-group">
+          <label>Optional Webhook Signing Secret (Auto-recompute HMAC):</label>
+          <input type="text" id="edit-webhook-secret" class="modal-input" placeholder="whsec_... or github secret (optional)">
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button class="btn btn-secondary btn-sm" id="btn-cancel-edit">Cancel</button>
+        <button class="btn btn-primary btn-sm" id="btn-submit-edit-replay">Execute Replay</button>
+      </div>
+    </div>
   </div>
 
   <div class="toast-container" id="toast-container"></div>

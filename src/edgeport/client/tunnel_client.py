@@ -20,6 +20,7 @@ from edgeport.protocol.serializer import decode_frame, encode_frame
 
 from .forwarder import LocalForwarder
 from .storage import CapturedTransaction, TransactionStore
+from .ws_proxy import LocalWebSocketForwarder
 
 logger = logging.getLogger("edgeport.client")
 
@@ -48,6 +49,7 @@ class TunnelClient:
             if forwarder is not None
             else LocalForwarder(target_base_url=target_url)
         )
+        self.ws_forwarder = LocalWebSocketForwarder(target_base_url=target_url)
 
         self.public_url: str | None = None
         self.is_connected = False
@@ -169,22 +171,31 @@ class TunnelClient:
 
     async def _reader_loop(self, ws: websockets.WebSocketClientProtocol) -> None:
         assert self._multiplexer is not None
-        while self._running:
-            raw_msg = await ws.recv()
-            frame = decode_frame(raw_msg)
+        try:
+            while self._running:
+                raw_msg = await ws.recv()
+                frame = decode_frame(raw_msg)
 
-            if frame.stream_id == 0:
-                await self._multiplexer.handle_inbound_frame(frame)
-                continue
+                if frame.stream_id == 0:
+                    await self._multiplexer.handle_inbound_frame(frame)
+                    continue
 
-            stream = self._multiplexer.get_stream(frame.stream_id)
+                stream = self._multiplexer.get_stream(frame.stream_id)
 
-            if frame.type == FrameType.STREAM_OPEN:
-                stream = await self._multiplexer.create_stream(frame.stream_id)
-                # Spawn worker to handle this stream
-                asyncio.create_task(self._handle_incoming_stream(stream, frame))
-            elif stream:
-                stream.push_inbound(frame)
+                if frame.type == FrameType.STREAM_OPEN:
+                    stream = await self._multiplexer.create_stream(frame.stream_id)
+                    # Spawn worker to handle this stream
+                    asyncio.create_task(self._handle_incoming_stream(stream, frame))
+                elif frame.type == FrameType.WS_OPEN:
+                    stream = await self._multiplexer.create_stream(frame.stream_id)
+                    # Spawn worker to bridge bidirectional WebSocket
+                    asyncio.create_task(
+                        self.ws_forwarder.bridge_stream(stream, frame, self._multiplexer)
+                    )
+                elif stream:
+                    stream.push_inbound(frame)
+        except (ConnectionClosed, asyncio.CancelledError):
+            pass
 
     async def _handle_incoming_stream(self, stream, open_frame: Frame) -> None:
         assert self._multiplexer is not None
