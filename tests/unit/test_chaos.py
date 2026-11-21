@@ -13,7 +13,10 @@ async def test_chaos_delay_injection():
     app = Starlette(routes=[Route("/test", lambda r: PlainTextResponse("ok"))])
     forwarder = LocalForwarder(target_base_url="http://testserver", chaos_delay_ms=100.0)
     import httpx
-    forwarder._client = httpx.AsyncClient(transport=httpx.ASGITransport(app=app), base_url="http://testserver")
+
+    forwarder._client = httpx.AsyncClient(
+        transport=httpx.ASGITransport(app=app), base_url="http://testserver"
+    )
 
     status, _, _, duration = await forwarder.forward("GET", "/test")
     await forwarder.close()

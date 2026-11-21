@@ -20,6 +20,12 @@
 
 EdgePort is a self-hosted reverse tunneling and webhook replay tool written in Python. It exposes your local HTTP and WebSocket services to the internet through an encrypted connection to a public relay server. Every incoming request is captured locally, displayed in a terminal user interface or an embedded web inspector, and can be replayed against your local service with a single keypress.
 
+## Interface Preview
+
+<p align="center">
+  <img src="docs/images/edgeport_demo.gif?raw=true" alt="EdgePort Interface Preview" width="100%" />
+</p>
+
 ## Features
 
 - **Bidirectional WebSocket Tunneling**: Multiplex concurrent HTTP streams and WebSocket connections (Vite HMR, live chat) over a single persistent tunnel.

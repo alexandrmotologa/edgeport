@@ -32,7 +32,10 @@ async def test_forwarder_success_with_transport():
     # Test LocalForwarder by injecting ASGI transport into httpx client
     forwarder = LocalForwarder(target_base_url="http://testserver")
     import httpx
-    forwarder._client = httpx.AsyncClient(transport=httpx.ASGITransport(app=app), base_url="http://testserver")
+
+    forwarder._client = httpx.AsyncClient(
+        transport=httpx.ASGITransport(app=app), base_url="http://testserver"
+    )
 
     status, headers, body, duration = await forwarder.forward(
         method="POST",

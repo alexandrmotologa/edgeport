@@ -39,17 +39,13 @@ async def test_end_to_end_websocket_tunneling():
             pass
 
     local_app = Starlette(routes=[WebSocketRoute("/ws-echo", echo_ws)])
-    local_config = uvicorn.Config(
-        local_app, host="127.0.0.1", port=local_port, log_level="error"
-    )
+    local_config = uvicorn.Config(local_app, host="127.0.0.1", port=local_port, log_level="error")
     local_server = uvicorn.Server(local_config)
     local_task = asyncio.create_task(local_server.serve())
 
     # 2. Relay Gateway
     relay = RelayGateway(domain="localhost", port=relay_port)
-    relay_config = uvicorn.Config(
-        relay.app, host="127.0.0.1", port=relay_port, log_level="error"
-    )
+    relay_config = uvicorn.Config(relay.app, host="127.0.0.1", port=relay_port, log_level="error")
     relay_server = uvicorn.Server(relay_config)
     relay_task = asyncio.create_task(relay_server.serve())
 

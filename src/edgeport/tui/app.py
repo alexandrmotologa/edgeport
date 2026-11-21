@@ -151,6 +151,7 @@ class EdgePortTUI(App):
         # Attempt system clipboard copy
         try:
             import subprocess
+
             subprocess.run("clip", input=curl_cmd.encode("utf-8"), check=False)
             self.notify("Copied cURL command to clipboard", title="Clipboard")
         except Exception:
@@ -158,6 +159,7 @@ class EdgePortTUI(App):
 
     def action_export(self) -> None:
         from edgeport.client.exporter import save_har_file
+
         txns = self.store.all()
         if not txns:
             self.notify("No transactions to export", severity="warning")
@@ -165,4 +167,3 @@ class EdgePortTUI(App):
         base_url = self.client.public_url or self.client.target_url
         path = save_har_file(txns, "edgeport-traffic.har", base_url=base_url)
         self.notify(f"Exported {len(txns)} requests to {path.name}", title="Export Complete")
-

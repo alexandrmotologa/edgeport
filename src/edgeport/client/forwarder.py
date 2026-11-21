@@ -51,9 +51,7 @@ class LocalForwarder:
             Tuple of (status_code, response_headers, response_body_bytes, duration_ms)
         """
         headers = headers or {}
-        forward_headers = {
-            k: v for k, v in headers.items() if k.lower() not in HOP_BY_HOP_HEADERS
-        }
+        forward_headers = {k: v for k, v in headers.items() if k.lower() not in HOP_BY_HOP_HEADERS}
 
         full_url = f"{self.target_base_url}{path}"
         if query_string:
@@ -67,9 +65,9 @@ class LocalForwarder:
 
         # 2. Chaos mock status injection
         if self.chaos_mock_status is not None:
-            body = (
-                f"EdgePort Chaos Mock: Simulated status {self.chaos_mock_status}"
-            ).encode("utf-8")
+            body = (f"EdgePort Chaos Mock: Simulated status {self.chaos_mock_status}").encode(
+                "utf-8"
+            )
             return self.chaos_mock_status, {"content-type": "text/plain"}, body, self.chaos_delay_ms
 
         # 3. Chaos random failure injection
@@ -86,9 +84,7 @@ class LocalForwarder:
             duration_ms = (time.perf_counter() - start_time) * 1000
 
             resp_headers = {
-                k: v
-                for k, v in resp.headers.items()
-                if k.lower() not in HOP_BY_HOP_HEADERS
+                k: v for k, v in resp.headers.items() if k.lower() not in HOP_BY_HOP_HEADERS
             }
 
             return resp.status_code, resp_headers, resp.content, duration_ms

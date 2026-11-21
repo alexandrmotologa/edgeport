@@ -39,9 +39,7 @@ def export_to_har(
         req_headers = [{"name": k, "value": v} for k, v in t.request_headers.items()]
         resp_headers = [{"name": k, "value": v} for k, v in t.response_headers.items()]
 
-        req_body_text = (
-            t.request_body.decode("utf-8", errors="replace") if t.request_body else ""
-        )
+        req_body_text = t.request_body.decode("utf-8", errors="replace") if t.request_body else ""
         resp_body_text = (
             t.response_body.decode("utf-8", errors="replace") if t.response_body else ""
         )
@@ -184,11 +182,13 @@ def export_to_postman(
             "body": resp_body_text,
         }
 
-        items.append({
-            "name": item_name,
-            "request": request_obj,
-            "response": [example_resp],
-        })
+        items.append(
+            {
+                "name": item_name,
+                "request": request_obj,
+                "response": [example_resp],
+            }
+        )
 
     return {
         "info": {

@@ -48,9 +48,7 @@ class TunnelClient:
         self.basic_auth = basic_auth
         self.store = store if store is not None else TransactionStore()
         self.forwarder = (
-            forwarder
-            if forwarder is not None
-            else LocalForwarder(target_base_url=target_url)
+            forwarder if forwarder is not None else LocalForwarder(target_base_url=target_url)
         )
         self.ws_forwarder = LocalWebSocketForwarder(target_base_url=target_url)
 

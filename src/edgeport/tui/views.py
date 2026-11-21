@@ -78,24 +78,30 @@ class TransactionDetailView(Vertical):
             lines.append(f"  [cyan]{k}:[/] {v}")
 
         if txn.request_body:
-            lines.extend([
-                "",
-                "[bold underline]Request Body:[/]",
-                f"[dim]{txn.formatted_request_body}[/]",
-            ])
+            lines.extend(
+                [
+                    "",
+                    "[bold underline]Request Body:[/]",
+                    f"[dim]{txn.formatted_request_body}[/]",
+                ]
+            )
 
-        lines.extend([
-            "",
-            "[bold underline]Response Headers:[/]",
-        ])
+        lines.extend(
+            [
+                "",
+                "[bold underline]Response Headers:[/]",
+            ]
+        )
         for k, v in txn.response_headers.items():
             lines.append(f"  [cyan]{k}:[/] {v}")
 
         if txn.response_body:
-            lines.extend([
-                "",
-                "[bold underline]Response Body:[/]",
-                f"[dim]{txn.formatted_response_body}[/]",
-            ])
+            lines.extend(
+                [
+                    "",
+                    "[bold underline]Response Body:[/]",
+                    f"[dim]{txn.formatted_response_body}[/]",
+                ]
+            )
 
         content_widget.update("\n".join(lines))

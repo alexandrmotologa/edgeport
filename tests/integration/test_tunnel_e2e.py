@@ -45,17 +45,13 @@ async def test_end_to_end_tunnel_concurrency_and_replay():
     local_app = Starlette(
         routes=[Route("/{path:path}", local_handler, methods=["GET", "POST", "PUT", "DELETE"])]
     )
-    local_config = uvicorn.Config(
-        local_app, host="127.0.0.1", port=local_port, log_level="error"
-    )
+    local_config = uvicorn.Config(local_app, host="127.0.0.1", port=local_port, log_level="error")
     local_server = uvicorn.Server(local_config)
     local_task = asyncio.create_task(local_server.serve())
 
     # 2. Relay Gateway server
     relay = RelayGateway(domain="localhost", port=relay_port)
-    relay_config = uvicorn.Config(
-        relay.app, host="127.0.0.1", port=relay_port, log_level="error"
-    )
+    relay_config = uvicorn.Config(relay.app, host="127.0.0.1", port=relay_port, log_level="error")
     relay_server = uvicorn.Server(relay_config)
     relay_task = asyncio.create_task(relay_server.serve())
 
@@ -86,6 +82,7 @@ async def test_end_to_end_tunnel_concurrency_and_replay():
 
     # 4. Execute 25 concurrent requests through the public relay
     async with httpx.AsyncClient(base_url=f"http://127.0.0.1:{relay_port}", timeout=10.0) as http:
+
         async def send_single_request(idx: int) -> dict:
             headers = {
                 "Host": f"{subdomain}.localhost:{relay_port}",

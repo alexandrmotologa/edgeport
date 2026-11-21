@@ -209,9 +209,7 @@ def generate_mock_webhook(
     """
     prov_lower = provider.lower().strip()
     if prov_lower not in TEMPLATES:
-        raise ValueError(
-            f"Unknown provider '{provider}'. Available: {list(TEMPLATES.keys())}"
-        )
+        raise ValueError(f"Unknown provider '{provider}'. Available: {list(TEMPLATES.keys())}")
 
     prov_events = TEMPLATES[prov_lower]
     if event_type not in prov_events:

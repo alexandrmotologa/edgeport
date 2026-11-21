@@ -25,11 +25,28 @@ def test_cli_mock_print_only() -> None:
 
 
 def test_cli_mock_print_only_signed() -> None:
-    result = runner.invoke(app, [
-        "mock", "github", "push",
-        "--secret", "my_secret_token",
-        "--print-only",
-    ])
+    result = runner.invoke(
+        app,
+        [
+            "mock",
+            "github",
+            "push",
+            "--secret",
+            "my_secret_token",
+            "--print-only",
+        ],
+    )
     assert result.exit_code == 0
     assert "x-hub-signature-256" in result.stdout
     assert "Signed: Yes (HMAC)" in result.stdout
+
+
+def test_cli_version() -> None:
+    for flag in ["--version", "-v"]:
+        result = runner.invoke(app, [flag])
+        assert result.exit_code == 0
+        assert "edgeport v0.1.1" in result.stdout
+
+    result_cmd = runner.invoke(app, ["version"])
+    assert result_cmd.exit_code == 0
+    assert "edgeport v0.1.1" in result_cmd.stdout

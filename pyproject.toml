@@ -4,7 +4,7 @@ build-backend = "hatchling.build"
 
 [project]
 name = "edgeport"
-version = "0.1.0"
+version = "0.1.1"
 description = "Self-hosted reverse tunneling and webhook replay engine"
 readme = "README.md"
 authors = [
@@ -40,6 +40,7 @@ packages = ["src/edgeport"]
 
 [tool.pytest.ini_options]
 asyncio_mode = "auto"
+asyncio_default_fixture_loop_scope = "function"
 testpaths = ["tests"]
 pythonpath = ["src"]
 

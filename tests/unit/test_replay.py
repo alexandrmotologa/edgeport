@@ -25,7 +25,9 @@ async def test_replay_engine_success_and_diff():
     app = Starlette(routes=[Route("/api/test", echo_counter, methods=["POST"])])
 
     forwarder = LocalForwarder(target_base_url="http://testserver")
-    forwarder._client = httpx.AsyncClient(transport=httpx.ASGITransport(app=app), base_url="http://testserver")
+    forwarder._client = httpx.AsyncClient(
+        transport=httpx.ASGITransport(app=app), base_url="http://testserver"
+    )
 
     store = TransactionStore()
 

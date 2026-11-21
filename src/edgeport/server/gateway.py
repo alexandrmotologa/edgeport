@@ -277,9 +277,7 @@ class RelayGateway:
 
             hop_by_hop = {"connection", "upgrade", "keep-alive", "transfer-encoding"}
             proxy_headers = {
-                k.lower(): v
-                for k, v in request.headers.items()
-                if k.lower() not in hop_by_hop
+                k.lower(): v for k, v in request.headers.items() if k.lower() not in hop_by_hop
             }
 
             open_frame = Frame(

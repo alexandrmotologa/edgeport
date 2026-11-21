@@ -37,6 +37,29 @@ app = typer.Typer(
 )
 
 
+def version_callback(value: bool) -> None:
+    if value:
+        console.print(f"edgeport v{__version__}")
+        raise typer.Exit()
+
+
+@app.callback()
+def main_callback(
+    version: Annotated[
+        bool | None,
+        typer.Option(
+            "--version",
+            "-v",
+            callback=version_callback,
+            is_eager=True,
+            help="Show version and exit.",
+        ),
+    ] = None,
+) -> None:
+    """Zero-config reverse tunneling and webhook replay engine."""
+    pass
+
+
 @app.command()
 def expose(
     port: Annotated[int, typer.Argument(help="Local port to expose (e.g. 8080)")],
@@ -155,10 +178,12 @@ def expose(
             console.print(table)
 
             def on_connected(public_url: str) -> None:
-                console.print(Panel(
-                    f"[bold green]Tunnel Connected![/]\nPublic URL: [bold cyan]{public_url}[/]",
-                    title="Active Tunnel",
-                ))
+                console.print(
+                    Panel(
+                        f"[bold green]Tunnel Connected![/]\nPublic URL: [bold cyan]{public_url}[/]",
+                        title="Active Tunnel",
+                    )
+                )
                 if qr:
                     console.print(generate_terminal_qr(public_url))
 
@@ -248,11 +273,13 @@ def mock(
         raise typer.Exit(1)
 
     if print_only or not target:
-        console.print(Panel(
-            f"[bold green]Mock Webhook Generated:[/] [cyan]{provider} / {event}[/]\n"
-            f"Signed: [yellow]{'Yes (HMAC)' if secret else 'No (unsigned mock)'}[/]",
-            title="EdgePort Mock Webhook",
-        ))
+        console.print(
+            Panel(
+                f"[bold green]Mock Webhook Generated:[/] [cyan]{provider} / {event}[/]\n"
+                f"Signed: [yellow]{'Yes (HMAC)' if secret else 'No (unsigned mock)'}[/]",
+                title="EdgePort Mock Webhook",
+            )
+        )
         console.print("\n[bold]Headers:[/]")
         for k, v in headers.items():
             console.print(f"  [cyan]{k}[/]: {v}")
@@ -267,11 +294,13 @@ def mock(
     try:
         resp = httpx.post(target, headers=headers, content=payload_str, timeout=10.0)
         status_color = "green" if resp.status_code < 400 else "red"
-        console.print(Panel(
-            f"Status Code: [bold {status_color}]{resp.status_code}[/]\n"
-            f"Response Body: {resp.text[:300] if resp.text else '<empty response>'}",
-            title=f"Mock Webhook Dispatched: {provider} / {event}",
-        ))
+        console.print(
+            Panel(
+                f"Status Code: [bold {status_color}]{resp.status_code}[/]\n"
+                f"Response Body: {resp.text[:300] if resp.text else '<empty response>'}",
+                title=f"Mock Webhook Dispatched: {provider} / {event}",
+            )
+        )
     except Exception as exc:
         console.print(f"[bold red]Failed to deliver mock webhook:[/] {exc}")
         raise typer.Exit(1)
@@ -306,7 +335,8 @@ def export(
             raise typer.Exit(1)
 
         default_filename = (
-            "edgeport-traffic.har" if fmt == "har"
+            "edgeport-traffic.har"
+            if fmt == "har"
             else "edgeport-collection.postman_collection.json"
         )
         out_path = output or default_filename
@@ -334,14 +364,16 @@ def serve(
     ] = None,
 ) -> None:
     """Runs the public EdgePort Relay Gateway server."""
-    console.print(Panel(
-        f"[bold green]Starting EdgePort Relay Gateway[/]\n"
-        f"Host: [cyan]{host}:{port}[/]\n"
-        f"Base Domain: [cyan]{domain}[/]\n"
-        f"Client Token Auth: [yellow]{'Enabled' if token else 'Disabled'}[/]\n"
-        f"Tunnel Ingress: [cyan]ws://{domain}:{port}/ws/tunnel[/]",
-        title="EdgePort Relay Gateway",
-    ))
+    console.print(
+        Panel(
+            f"[bold green]Starting EdgePort Relay Gateway[/]\n"
+            f"Host: [cyan]{host}:{port}[/]\n"
+            f"Base Domain: [cyan]{domain}[/]\n"
+            f"Client Token Auth: [yellow]{'Enabled' if token else 'Disabled'}[/]\n"
+            f"Tunnel Ingress: [cyan]ws://{domain}:{port}/ws/tunnel[/]",
+            title="EdgePort Relay Gateway",
+        )
+    )
 
     gateway = RelayGateway(domain=domain, port=port, relay_secret=token)
     uvicorn.run(gateway.app, host=host, port=port, log_level="info")
@@ -360,12 +392,14 @@ def sink(
     ] = None,
 ) -> None:
     """Runs a standalone mock webhook sink server that captures and logs payloads."""
-    console.print(Panel(
-        f"[bold green]Starting Mock Webhook Sink Server[/]\n"
-        f"Local Port: [cyan]{port}[/]\n"
-        f"All incoming requests will receive 200 OK and be logged.",
-        title="EdgePort Mock Sink",
-    ))
+    console.print(
+        Panel(
+            f"[bold green]Starting Mock Webhook Sink Server[/]\n"
+            f"Local Port: [cyan]{port}[/]\n"
+            f"All incoming requests will receive 200 OK and be logged.",
+            title="EdgePort Mock Sink",
+        )
+    )
 
     if subdomain:
         cfg = Config.load()
@@ -402,12 +436,11 @@ def sink(
         server.run()
 
 
-@app.command()
-def version() -> None:
+@app.command("version")
+def version_cmd() -> None:
     """Displays the installed EdgePort version."""
-    console.print(f"EdgePort version [bold cyan]{__version__}[/]")
+    console.print(f"edgeport v{__version__}")
 
 
 if __name__ == "__main__":
     app()
-

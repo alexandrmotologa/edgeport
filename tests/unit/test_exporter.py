@@ -48,7 +48,9 @@ def test_export_to_postman_format() -> None:
         duration_ms=12.0,
     )
 
-    col = export_to_postman([txn], collection_name="Test Suite Export", base_url="http://127.0.0.1:8000")
+    col = export_to_postman(
+        [txn], collection_name="Test Suite Export", base_url="http://127.0.0.1:8000"
+    )
     assert col["info"]["name"] == "Test Suite Export"
     assert "collection.json" in col["info"]["schema"]
     assert len(col["item"]) == 1
